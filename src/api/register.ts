@@ -55,17 +55,21 @@ api.post = async (data: DataForHandlers): Promise<APIresponse> => {
     }
   }
 
-  const [userErr, userMsg] = await file.create(
-    "users",
-    payload.email + ".json",
-    payload
-  )
-  if (userErr) {
-    return {
-      statusCode: 409,
-      headers: {},
-      body: "User with this email is already registered.",
-    }
+  // const [userErr, userMsg] = await file.create('users', payload.email + '.json', payload);
+  // if (userErr) {
+  //     return {
+  //         statusCode: 409,
+  //         headers: {},
+  //         body: 'User with this email is already registered.',
+  //     };
+  // }
+
+  const queryString = `INSERT INTO users (username, email, password) VALUES ('${payload.username}', '${payload.email}', '${payload.pass}');`
+
+  try {
+    await data.dbConnection.query(queryString)
+  } catch (error) {
+    console.log(error)
   }
 
   return {

@@ -1,32 +1,40 @@
-import { file } from './file.js';
+import { DataForHandlers } from "./server.js"
 
 export function cookieParser(cookieString: string): Record<string, string> {
-    const cookies = cookieString.split('; ');
-    const cookiesObj: Record<string, string> = {};
-    for (const str of cookies) {
-        const [key, value] = str.split('=') as [string, string];
-        cookiesObj[key] = value;
-    }
-    return cookiesObj;
+  const cookies = cookieString.split("; ")
+  const cookiesObj: Record<string, string> = {}
+  for (const str of cookies) {
+    const [key, value] = str.split("=") as [string, string]
+    cookiesObj[key] = value
+  }
+  return cookiesObj
 }
 
-export async function isUserLoggedIn(tokenString: string | undefined): boolean {
-    if (typeof tokenString !== 'string') {
-        return false;
-    }
+export async function isUserLoggedIn(
+  data: DataForHandlers,
+  tokenString: string | undefined
+): Promise<boolean> {
+  if (typeof tokenString !== "string") {
+    return false
+  }
 
-    const [tokenErr, tokenMsg] = await file.read('token', tokenString + '.json');
-    if (tokenErr) {
-        return false;
-    }
+  const tokenQueryString = `SELECT * FROM tokens WHERE token LIKE '${tokenString}';`
+  let tokenDBresponse: any = null
 
-    const tokenObj = JSON.parse(tokenMsg);
-    const { email, createdAt } = tokenObj;
+  try {
+    tokenDBresponse = await data.dbConnection.query(tokenQueryString) // [[], []]
+  } catch (error) {
+    return false
+  }
 
-    const now = new Date().getTime();
-    if (createdAt + 3600000 < now) {
-        return false;
-    }
+  const tokensFromDb = tokenDBresponse[0]
+  if (tokensFromDb.length !== 1) {
+    return false
+  }
 
-    return true;
+  const tokenObj = tokensFromDb[0]
+  const { createdAt } = tokenObj
+  const now = new Date().getTime()
+
+  return createdAt.getTime() + 3600000 >= now
 }

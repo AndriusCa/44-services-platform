@@ -2,8 +2,8 @@ import { databaseSetup } from "./lib/dbSetup.js"
 import { server } from "./lib/server.js"
 
 export const initialFileStructure = () => {
-  console.log("Creating folders...")
-  console.log("Creating files...")
+  console.log("Creating folders...");
+  console.log("Creating files...");
 }
 
 export const init = async () => {
@@ -12,13 +12,13 @@ export const init = async () => {
 
     const dbConnection = await databaseSetup()
 
-    server.init(dbConnection)
+    server.init(dbConnection);
 
     setInterval(() => {
       // isvalyti nebegaliojancios /token/*.json
-    }, 24 * 60 * 60 * 1000)
+    }, 24 * 60 * 60 * 1000);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -27,6 +27,6 @@ export const app = {
   initialFileStructure,
 }
 
-export default app
+export default app;
 
-app.init()
+app.init();

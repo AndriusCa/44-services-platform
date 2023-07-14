@@ -143,11 +143,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
       }
       let apiRes = {} as APIresponse
 
-      const [_, endpoint, ...restUrlParts] = trimmedPath.split("/") as [
-        string,
-        string,
-        string[]
-      ]
+      const [_, endpoint] = trimmedPath.split("/") as [string, string, string[]]
       const apiFunction = apiEndpoints[endpoint]
       if (apiFunction) {
         apiRes = (await apiFunction(dataForHandlers)) as APIresponse
@@ -174,7 +170,10 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
       const cookiesObj: Record<string, string> = cookieParser(
         req.headers.cookie ?? ""
       )
-      const isLoggedIn = await isUserLoggedIn(cookiesObj["session-token"])
+      const isLoggedIn = await isUserLoggedIn(
+        dataForHandlers,
+        cookiesObj["session-token"]
+      )
       let PageClass = publicPages["404"]
 
       if (isLoggedIn && trimmedPath in protectedPages) {
@@ -214,8 +213,8 @@ const httpServer = http.createServer(serverLogic)
 
 export const init = (dbConnectionObj: Connection) => {
   dbConnection = dbConnectionObj
-  httpServer.listen(3017, () => {
-    console.log(`Server running at http://localhost:3017`)
+  httpServer.listen(4425, () => {
+    console.log(`Server running at http://localhost:4425`)
   })
 }
 
